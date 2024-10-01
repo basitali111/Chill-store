@@ -1,0 +1,246 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+.btn {
+  text-transform: none;
+}
+
+.carousel img {
+  height: 60vh; /* Fixed height */
+  width: 100%; /* Responsive width */
+  object-fit: cover;
+  background-size: contain;
+  background-repeat: no-repeat; /* Covers the area without distorting aspect ratio */
+}
+
+.carousel-container {
+  width: 100%;
+  overflow: hidden;
+  overflow-x: scroll; /* Enable horizontal scrolling */
+}
+
+.carousel-track {
+  display: flex;
+  width: calc(300%); /* Adjust based on duplication */
+  animation: scroll 60s linear infinite; /* Slowed down the animation */
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%); /* Moves by the width of one full set of products */
+  }
+}
+
+.carousel-track li {
+  flex: 0 0 auto;
+  width: 20%; /* Adjust based on the number of items you want visible at once */
+  margin: 0 2px; /* Reducing horizontal spacing between cards */
+}
+
+.card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  height: 500px; /* Increased height for all cards */
+  padding-bottom: 20px; /* Add space at the bottom */
+}
+
+.card img {
+  height: 250px; /* Increased height for images */
+  width: 100%;
+  object-fit: contain; /* Ensure images fit within the area */
+  background-size: cover;
+}
+
+.card-payment {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+/* Hides scrollbar */
+.carousel-container::-webkit-scrollbar {
+  display: none;
+}
+/* Adding some global styles for the footer */
+/* Adding some global styles for the footer */
+/* Adding some global styles for the footer */
+.footer-container {
+  background: #111; /* Dark background */
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden; /* Ensures the rounded corners */
+}
+
+.inner-content, .inner-content-dark {
+  background: #222; /* Slightly lighter than the outer container */
+}
+
+.footer-container h1, .footer-container p, .footer-container a {
+  color: #e0e0e0; /* Light gray text */
+}
+
+.footer-container a:hover {
+  color: white; /* Hover effect for links */
+}
+
+.footer-container .text-gray-400 {
+  color: #aaa; /* Gray color for less prominent text */
+}
+
+
+
+/* Button enhancements */
+.button-hover-effect {
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.button-hover-effect:hover {
+  background-color: #405dff; /* Change color on hover */
+  transform: scale(1.05); /* Slightly increase the button size */
+}
+
+/* Social media icons animation */
+.social-icon {
+  transition: transform 0.2s;
+}
+
+.social-icon:hover {
+  transform: scale(1.2); /* Make icons bigger on hover */
+}
+
+/* General padding and spacing for inner content */
+.inner-content {
+  padding: 20px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 15px;
+}
+
+/* Media queries for mobile responsiveness */
+@media (max-width: 640px) {
+  .card {
+    height: auto;
+    padding-bottom: 10px;
+  }
+
+  .card img {
+    height: 250px;
+  }
+
+  .carousel-track li {
+    width: 25%;
+    margin: 0 1px;
+    margin-left: 15px;
+    margin-right: 15px; /* Reducing horizontal spacing between cards */
+  }
+
+  .carousel-container {
+    padding: 0 10px;
+  }
+}
+
+/* In your global CSS file, e.g., styles/globals.css */
+.steps .step-primary:after {
+  background: linear-gradient(to right, #1e3a8a, #3b82f6); /* Gradient from dark blue to light blue */
+  --tw-text-opacity: 1;
+  color: var(--fallback-pc, oklch(var(--pc) / var(--tw-text-opacity)));
+}
+
+.form-radio {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  background-color: transparent;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.form-radio:checked {
+  background-color: currentColor;
+}
+/* Loader Styles */
+.loader {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.loader-inner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.loader-circle {
+  width: 16px;
+  height: 16px;
+  background-color: #3b82f6; /* Tailwind Blue */
+  border-radius: 50%;
+  animation: bounce 1.5s infinite ease-in-out;
+}
+
+.loader-circle:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.loader-circle:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+}

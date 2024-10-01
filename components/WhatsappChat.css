@@ -1,0 +1,51 @@
+/* components/WhatsappChat.module.css */
+
+.custom-whatsapp-chat {
+    --whatsapp-button-size: 100px; /* Larger size for the button */
+  }
+  
+  .custom-whatsapp-chat .whatsapp_button {
+    width: var(--whatsapp-button-size);
+    height: var(--whatsapp-button-size);
+    border-radius: 50%;
+    background-color: #1a1a1a; /* Dark gray background for a professional look */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5); /* Stronger shadow for depth */
+    transition: transform 0.2s; /* Smooth hover effect */
+  }
+  
+  .custom-whatsapp-chat .whatsapp_button:hover {
+    transform: scale(1.05); /* Slightly larger on hover for emphasis */
+  }
+  
+  .custom-whatsapp-chat .whatsapp_button::before {
+    content: "";
+    display: block;
+    width: 70%; /* Adjust icon size within the button */
+    height: 70%;
+    background: url('https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg') no-repeat center;
+    background-size: contain;
+    filter: brightness(0) invert(1); /* Make icon white for contrast */
+  }
+  
+  /* Loading spinner styles */
+  .custom-whatsapp-chat .loading_spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
