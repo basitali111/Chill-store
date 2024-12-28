@@ -21,9 +21,9 @@ const WhatsappChat = () => {
       {showChat && (
         <FloatingWhatsApp
           phoneNumber="+923194028899"
-          accountName="Kensin Store"
+          accountName="Chill Store"
           statusMessage={"We're here to help! Expect a reply within the hour."}
-          avatar={`/images/kensin.png`}
+          avatar={`/images/Chill Logo.png`}
           chatMessage="Hi! 😊 We love helping out! What can we do for you today?"
           darkMode={true}
           className="custom-whatsapp-chat" // Apply custom class name

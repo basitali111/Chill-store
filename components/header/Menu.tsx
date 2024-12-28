@@ -1,16 +1,17 @@
+// Menu.tsx
+
 'use client';
 
 import useCartService from '@/lib/hooks/useCartStore';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { SearchBox } from './SearchBox';
 
 const Menu = () => {
   const { items, init } = useCartService();
   const [mounted, setMounted] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLLIElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [productsToReviewCount, setProductsToReviewCount] = useState(0);
 
   const { data: session } = useSession();
@@ -43,10 +44,6 @@ const Menu = () => {
     init();
   };
 
-  const handleClick = () => {
-    (document.activeElement as HTMLElement).blur();
-  };
-
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -65,105 +62,83 @@ const Menu = () => {
   }, []);
 
   return (
-    <>
-      <div className="hidden md:block">
-        <SearchBox />
-      </div>
-      <div>
-        <ul className="flex justify-center items-center ml-8">
-          <li>
-            <Link
-              className="btn btn-ghost rounded-btn flex flex-col p-2 md:px-4 lg:px-4 text-white text-base md:text-lg font-bold hover:bg-gray-800 transition duration-300"
-              href="/cart"
-            >
-              <p className="text-sm md:text-base font-bold">Cart</p>
-              {mounted && items.length != 0 && (
-                <div className="badge badge-secondary text-sm p-1">
-                  {items.reduce((a, c) => a + c.qty, 0)}{' '}
-                </div>
+    <div className="flex items-center space-x-4">
+      {/* Cart Icon */}
+      <Link href="/cart" className="relative text-gray-800 hover:text-gray-600 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.2 6H17M7 13L5.4 5M17 13l1.2 6M9 21h6"
+          />
+        </svg>
+        {mounted && items.length > 0 && (
+          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+            {items.reduce((a, c) => a + c.qty, 0)}
+          </span>
+        )}
+      </Link>
+
+      {/* User Menu */}
+      {session && session.user ? (
+        <div className="relative" ref={dropdownRef}>
+          <button
+            className="flex items-center text-gray-800 hover:text-gray-600 transition"
+            onClick={toggleDropdown}
+          >
+            <img
+              src={session.user.image || '/images/default-avatar.jpg'}
+              alt={session.user.name || 'User Avatar'}
+              className="w-8 h-8 rounded-full object-cover mr-2"
+            />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-20">
+              {session.user.isAdmin && (
+                <Link href="/admin/dashboard" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                  Admin Dashboard
+                </Link>
               )}
-            </Link>
-          </li>
-          {session && session.user ? (
-            <>
-              <li ref={dropdownRef}>
-                <div className="dropdown dropdown-bottom dropdown-end">
-                  <button
-                    tabIndex={0}
-                    className="btn btn-ghost text-white rounded-btn p-2 md:px-4 hover:bg-gray-800 transition duration-300"
-                    onClick={toggleDropdown}
-                  >
-                    <div className="flex justify-center items-center text-sm md:text-base font-bold gap-1">
-                      <div>{session.user.name}</div>
-                      <div>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-5 h-5"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </button>
-                  {isDropdownOpen && (
-                    <ul
-                      tabIndex={0}
-                      className="menu dropdown-content z-[1] p-2 shadow-lg bg-gray-800 rounded-box w-52 text-white animate-fade-in"
-                    >
-                      {session.user.isAdmin && (
-                        <li onClick={handleClick}>
-                          <Link href="/admin/dashboard">Admin Dashboard</Link>
-                        </li>
-                      )}
-                      <li onClick={handleClick}>
-                        <Link href="/order-history">Order history</Link>
-                      </li>
-                      <li onClick={handleClick}>
-                        <Link href="/review-history">Review History</Link>
-                      </li>
-                      <li onClick={handleClick}>
-                        <Link href="/products-to-review">
-                          Products to Review
-                          {productsToReviewCount > 0 && (
-                            <span className="badge badge-info ml-2">{productsToReviewCount}</span>
-                          )}
-                        </Link>
-                      </li>
-                      <li onClick={handleClick}>
-                        <Link href="/profile">Profile</Link>
-                      </li>
-                      <li onClick={handleClick}>
-                        <button type="button" onClick={signoutHandler}>
-                          Sign out
-                        </button>
-                      </li>
-                    </ul>
-                  )}
-                </div>
-              </li>
-            </>
-          ) : (
-            <li>
+              <Link href="/order-history" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                Order History
+              </Link>
+              <Link href="/review-history" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                Review History
+              </Link>
+              <Link href="/products-to-review" className="flex items-center justify-between px-4 py-2 text-gray-700 hover:bg-gray-100">
+                <span>Products to Review</span>
+                {productsToReviewCount > 0 && (
+                  <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
+                    {productsToReviewCount}
+                  </span>
+                )}
+              </Link>
+              <Link href="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                Profile
+              </Link>
               <button
-                className="btn btn-ghost rounded-btn text-white text-base hover:bg-gray-800 transition duration-300"
-                type="button"
-                onClick={() => signIn()}
+                onClick={signoutHandler}
+                className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
               >
-                Sign in
+                Sign Out
               </button>
-            </li>
+            </div>
           )}
-        </ul>
-      </div>
-    </>
+        </div>
+      ) : (
+        <button
+          className="text-gray-800 hover:text-gray-600 transition"
+          onClick={() => signIn()}
+        >
+          Sign In
+        </button>
+      )}
+    </div>
   );
 };
 

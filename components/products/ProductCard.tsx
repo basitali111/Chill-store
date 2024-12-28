@@ -1,39 +1,47 @@
 import { Product } from '@/lib/models/ProductModel';
 import Link from 'next/link';
 import React from 'react';
-import {Rating} from './SearchRating';
+import { Rating } from './SearchRating';
+import Image from 'next/image';
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
-    <div className="p-4 w-[100%] sm:w-1/2 md:w-[100%] lg:w-[95%] mx-auto md:mx-0 lg:mx-0">
-      <Link href={`/product/${product.slug}`} className="block">
-        <div className="bg-white border border-gray-200 rounded-lg  shadow-lg overflow-hidden transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:border-gray-400">
-          <a href="#">
-            <div className="bg-white p-8 rounded-t-lg">
-              <img
-                className="w-full h-48 object-cover transition-all duration-300 hover:opacity-90"
-                src={product.images[0]?.url} // Assuming the main image is the first one in the array
-                alt={product.name}
-              />
-            </div>
-          </a>
-          <div className="p-4">
-            <a href="#">
-              <h5 className="text-xl text-gray-900  transition-colors duration-300 hover:text-gray-600">{product.name}</h5>
-            </a>
-            <div className="flex items-center mt-2.5 mb-5">
-              <div className="flex items-center space-x-1 rtl:space-x-reverse">
-              <Rating value={product.rating} caption={`(${product.numReviews})`} /> {/* Placeholder onChange handler */}
-                
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-2xl font-semibold text-gray-900 ">${product.price}</span>
-              <a href="#" className="text-white bg-gray-900 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-500 font-medium rounded-lg text-sm px-2 py-2 text-center transition-all duration-300">{product.brand}</a>
-            </div>
+    <Link href={`/product/${product.slug}`}>
+      {/* Outer Card Container */}
+      <div className="w-full max-w-lg bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-xl flex flex-col h-full cursor-pointer">
+        
+        {/* Image Wrapper (fixed height) */}
+        <div className="relative w-full h-64 bg-gray-50">
+          <Image
+            src={product.images[0]?.url}
+            alt={product.name}
+            fill
+            className="object-contain transition-transform duration-300 hover:scale-105"
+          />
+        </div>
+
+        {/* Text / Info Section */}
+        <div className="flex flex-col p-5 flex-grow">
+          {/* Title (optionally line-clamp to avoid huge blocks of text) */}
+          <h5 className="text-xl font-semibold text-gray-800 line-clamp-2">
+            {product.name}
+          </h5>
+
+          {/* Rating */}
+          <div className="flex items-center mt-3">
+            <Rating value={product.rating} caption={`(${product.numReviews})`} />
+          </div>
+
+          {/* Price & Brand at the Bottom */}
+          <div className="flex items-center justify-between mt-auto">
+            <span className="text-2xl font-bold text-gray-900">${product.price}</span>
+            <span className="px-3 py-1 bg-gray-800 text-white text-sm font-medium rounded-full">
+              {product.brand}
+            </span>
           </div>
         </div>
-      </Link>
-    </div>
+      </div>
+    </Link>
   );
 }
+

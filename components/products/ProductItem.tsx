@@ -1,37 +1,43 @@
 import { Product } from '@/lib/models/ProductModel';
 import Link from 'next/link';
-import React from 'react';
-import {Rating} from './SearchRating';
+import Image from 'next/image';
+import { Rating } from './SearchRating';
 
 export default function ProductItem({ product }: { product: Product }) {
   return (
-    <li className="relative w-full max-w-[475px] card pt-10 pb-10">
-      <Link href={`/product/${product.slug}`} className="relative h-full w-full">
-        <div className="sm:max-w-[15rem] md:w-full lg:w-full lg:max-w-sm md:max-w-sm bg-white border border-gray-300 rounded-lg shadow-lg   transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
-          <a href="#">
-            <img 
-              className="p-8 rounded-t-lg transition-all duration-300 hover:opacity-90" 
-              src={product.images[0]?.url} // Assuming the main image is the first one in the array
-              alt={product.name} 
-            />
-          </a>
-          <div className="px-5 pb-5">
-            <a href="#">
-              <h5 className="text-xl tracking-tight text-gray-900 transition-colors duration-300 hover:text-gray-600 ">{product.name}</h5>
-            </a>
-            <div className="flex items-center mt-2.5 mb-5">
-              <div className="flex items-center space-x-1 rtl:space-x-reverse">
-              <Rating value={product.rating} caption={`(${product.numReviews})`} /> {/* Placeholder onChange handler */}
-               
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-2xl font-semibold text-gray-900 ">${product.price}</span>
-              <a href="#" className="text-white bg-gray-700 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-500 font-medium rounded-lg text-sm px-2 py-2 text-center transition-all duration-300">{product.brand}</a>
-            </div>
-          </div>
-        </div>
+    <div className="w-full max-w-xs bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg flex flex-col">
+      {/* Image section */}
+      <Link
+        href={`/product/${product.slug}`}
+        className="relative w-full h-64 bg-gray-50 flex items-center justify-center overflow-hidden"
+      >
+        <Image
+          src={product.images[0]?.url}
+          alt={product.name}
+          fill
+          className="object-contain transition-transform duration-300 hover:scale-110"
+        />
       </Link>
-    </li>
+
+      {/* Content section */}
+      <div className="p-4 flex flex-col flex-grow">
+        <Link href={`/product/${product.slug}`}>
+          <h5 className="text-lg font-semibold text-gray-800 line-clamp-2">
+            {product.name}
+          </h5>
+        </Link>
+
+        <div className="flex items-center mt-2">
+          <Rating value={product.rating} caption={`(${product.numReviews})`} />
+        </div>
+
+        <div className="flex items-center justify-between mt-auto">
+          <span className="text-xl font-bold text-gray-900">${product.price}</span>
+          <span className="px-2 py-1 bg-gray-800 text-white text-sm font-medium rounded-full">
+            {product.brand}
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import toast, { Toaster } from 'react-hot-toast';
 import { convertDocToObj } from '@/lib/utils';
@@ -30,24 +31,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const [magnifierVisible, setMagnifierVisible] = useState<boolean>(false);
   const [magnifierPosition, setMagnifierPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  const imageRef = useRef<HTMLImageElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (product) {
-      if (product.images.length > 0) {
-        setSelectedImage(product.images[0].url);
-        if (product.colors && product.colors.length > 0) {
-          setSelectedColors(product.colors[0]);
-        }
-      }
-      fetchRelatedProducts(product.category);
-      fetchReviews(product.slug);
-      checkIfUserPurchased(product.slug);
-      checkIfUserReviewed(product.slug);
-    }
-  }, [product]);
-
-  const fetchRelatedProducts = async (category: string) => {
+  // Fetch Related Products
+  const fetchRelatedProducts = useCallback(async (category: string) => {
     try {
       const response = await fetch(`/api/products/related?category=${category}`);
       const data = await response.json();
@@ -55,9 +42,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     } catch (error) {
       console.error('Failed to fetch related products', error);
     }
-  };
+  }, []);
 
-  const fetchReviews = async (slug: string) => {
+  // Fetch Reviews
+  const fetchReviews = useCallback(async (slug: string) => {
     try {
       const response = await fetch(`/api/products/${slug}/reviews`);
       const data = await response.json();
@@ -69,22 +57,25 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     } catch (error) {
       console.error('Failed to fetch reviews', error);
     }
-  };
+  }, []);
 
-  const checkIfUserPurchased = async (slug: string) => {
+  // Check if User Purchased
+  const checkIfUserPurchased = useCallback(async (slug: string) => {
     try {
       const response = await fetch(`/api/orders/mine`);
       const orders = await response.json();
       const hasPurchased = orders.some(
-        (order: any) => order.items.some((item: any) => item.slug === slug && order.isDelivered)
+        (order: any) =>
+          order.items.some((item: any) => item.slug === slug) && order.isDelivered
       );
       setHasPurchased(hasPurchased);
     } catch (error) {
       console.error('Failed to check if user purchased', error);
     }
-  };
+  }, []);
 
-  const checkIfUserReviewed = async (slug: string) => {
+  // Check if User Reviewed
+  const checkIfUserReviewed = useCallback(async (slug: string) => {
     if (!session || !session.user) return;
 
     try {
@@ -99,15 +90,34 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     } catch (error) {
       console.error('Failed to fetch reviews', error);
     }
-  };
+  }, [session]);
+
+  // useEffect Hook
+  useEffect(() => {
+    if (product) {
+      if (product.images.length > 0) {
+        setSelectedImage(product.images[0].url);
+        if (product.colors && product.colors.length > 0) {
+          setSelectedColors(product.colors[0]);
+        }
+      }
+      fetchRelatedProducts(product.category);
+      fetchReviews(product.slug);
+      checkIfUserPurchased(product.slug);
+      checkIfUserReviewed(product.slug);
+    }
+  }, [product, fetchRelatedProducts, fetchReviews, checkIfUserPurchased, checkIfUserReviewed]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (imageRef.current) {
-      const { top, left, width, height } = imageRef.current.getBoundingClientRect();
-      const x = e.pageX - left - window.pageXOffset;
-      const y = e.pageY - top - window.pageYOffset;
+      const rect = imageRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
-      // Ensure the magnifier isnly visible when the cursor is inside the image bounds
+      const width = rect.width;
+      const height = rect.height;
+
+      // Ensure the magnifier is only visible when the cursor is inside the image bounds
       if (x >= 0 && y >= 0 && x <= width && y <= height) {
         setMagnifierVisible(true);
         setMagnifierPosition({ x: (x / width) * 100, y: (y / height) * 100 });
@@ -257,7 +267,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         <Link href="/" passHref>
           <button
             type="button"
-            className="w-full flex items-center justify-center px-5 py-2 text-base font-medium text-gray-700 transition-colors duration-200 bg-gray-200 border rounded-lg gap-x-2 sm:w-auto hover:bg-gray-300  mb-6"
+            className="w-full flex items-center justify-center px-5 py-2 text-base font-medium text-gray-700 transition-colors duration-200 bg-gray-200 border rounded-lg gap-x-2 sm:w-auto hover:bg-gray-300 mb-6"
           >
             <svg
               className="w-5 h-5 rtl:rotate-180"
@@ -278,15 +288,18 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            ref={imageRef}
           >
-            <div className="relative">
-              <img
-                ref={imageRef}
+            <div className="relative w-full">
+              <Image
                 src={selectedImage}
                 alt={product.name}
-                className="w-[95%] rounded-lg object-cover shadow-lg border border-gray-200"
+                layout="responsive"
+                width={500}
+                height={500}
+                className="rounded-lg object-cover shadow-lg border border-gray-200"
               />
-              {magnifierVisible && imageRef.current && (
+              {magnifierVisible && (
                 <div
                   className="absolute z-10 w-32 h-32 bg-white shadow-xl border border-gray-300 rounded-lg overflow-hidden pointer-events-none"
                   style={{
@@ -294,9 +307,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                     top: `${magnifierPosition.y}%`,
                     left: `${magnifierPosition.x}%`,
                     backgroundImage: `url(${selectedImage})`,
-                    backgroundSize: `${imageRef.current.offsetWidth * 2}px ${
-                      imageRef.current.offsetHeight * 2
-                    }px`,
+                    backgroundSize: '200%',
                     backgroundPosition: `${magnifierPosition.x}% ${magnifierPosition.y}%`,
                   }}
                 ></div>
@@ -304,15 +315,18 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             </div>
             <div className="w-32 flex flex-col gap-3">
               {product.images.map((img, index) => (
-                <img
-                  key={index}
-                  src={img.url}
-                  alt={`Color ${img.color}`}
-                  className={`w-full cursor-pointer rounded-lg transition-all duration-200 ${
-                    selectedImage === img.url ? 'border-2 border-blue-500' : 'border border-gray-200'
-                  }`}
-                  onClick={() => setSelectedImage(img.url)}
-                />
+                <div key={index} className="">
+                  <Image
+                    src={img.url}
+                    alt={`Color ${img.color}`}
+                    width={128}
+                    height={128}
+                    className={`w-full h-full cursor-pointer rounded-lg transition-all duration-200 ${
+                      selectedImage === img.url ? 'border-2 border-blue-500' : 'border border-gray-200'
+                    }`}
+                    onClick={() => setSelectedImage(img.url)}
+                  />
+                </div>
               ))}
             </div>
           </div>
@@ -378,7 +392,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         </div>
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-gray-800">Related Products</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3  mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 mt-6">
             {relatedProducts.map((relatedProduct) => (
               <ProductCard key={relatedProduct._id} product={relatedProduct} />
             ))}
@@ -391,9 +405,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
               reviews.map((review) => (
                 <div key={review._id} className="border-b pb-6 border-gray-200">
                   <div className="flex items-center space-x-4">
-                    <img
+                    <Image
                       src={review.user.image || '/images/default-avatar.jpg'}
                       alt={review.user.name || 'User Avatar'}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 rounded-full object-cover"
                     />
                     <div>

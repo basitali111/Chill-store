@@ -1,53 +1,58 @@
+// Sidebar.tsx
+
 'use client';
 
 import useLayoutService from '@/lib/hooks/useLayout';
 import Link from 'next/link';
 import useSWR from 'swr';
 import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
 
 const Sidebar = () => {
   const { toggleDrawer } = useLayoutService();
   const { data: categories, error } = useSWR('/api/products/categories');
   const { data: session } = useSession();
 
-  useEffect(() => {
-    console.log(session); // Log session data to debug
-  }, [session]);
-
-  if (error) return error.message;
-  if (!categories) return 'Loading...';
+  if (error) return <div>{error.message}</div>;
+  if (!categories) return <div>Loading...</div>;
 
   return (
-    <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-      {session && session.user && (
-        <li className="mb-4">
-          <div className="flex items-center">
+    <div className="w-80 min-h-full bg-white shadow-md">
+      <div className="p-6">
+        {/* User Profile */}
+        {session && session.user && (
+          <div className="flex items-center mb-6">
             <img
               src={session.user.image || '/images/default-avatar.jpg'}
               alt={session.user.name || 'User Avatar'}
-              className="w-16 h-16 rounded-full object-cover mr-4"
+              className="w-14 h-14 rounded-full object-cover mr-4"
             />
             <div>
-              <h2 className="text-lg font-semibold">{session.user.name}</h2>
-              <p className="text-sm">{session.user.username}</p>
+              <h2 className="text-lg font-semibold text-gray-800">{session.user.name}</h2>
+              <p className="text-sm text-gray-600">{session.user.email}</p>
             </div>
           </div>
-        </li>
-      )}
-      <li>
-        <h2 className="text-xl">Shop By Department</h2>
-      </li>
-      {categories.map((category: string) => (
-        <li key={category}>
-          <Link href={`/search?category=${category}`} onClick={toggleDrawer}>
-            {category}
-          </Link>
-        </li>
-      ))}
-    </ul>
+        )}
+
+        {/* Navigation Links */}
+        <nav>
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Shop By Department</h2>
+          <ul className="space-y-2">
+            {categories.map((category: string) => (
+              <li key={category}>
+                <Link
+                  href={`/search?category=${category}`}
+                  onClick={toggleDrawer}
+                  className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition"
+                >
+                  <span>{category}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </div>
   );
 };
 
 export default Sidebar;
-
