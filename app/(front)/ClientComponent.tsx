@@ -69,7 +69,7 @@ const ClientComponent: React.FC<ClientComponentProps> = ({
   }, [loadMoreProducts]);
 
   // Hero Carousel
-  const images = ['/images/banner1.png', '/images/banner2.png', '/images/banner3.png'];
+  const images = ['https://ik.imagekit.io/daogwugrm/banner1.png?updatedAt=1736276582664', 'https://ik.imagekit.io/daogwugrm/banner2.png?updatedAt=1736276624880', 'https://ik.imagekit.io/daogwugrm/banner3.png?updatedAt=1736276673969'];
   const [currentSlide, setCurrentSlide] = useState(0);
 
   /**
